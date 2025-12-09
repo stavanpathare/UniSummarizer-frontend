@@ -1,0 +1,81 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Upload Notes • UniSummarizer</title>
+
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="assets/js/app.js" defer></script>
+  </head>
+  <body class="page-upload">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="container header-inner">
+        <a href="index.html" class="logo">
+          <img src="assets/img/logo.png" alt="logo" />
+          <span>UniSummarizer</span>
+        </a>
+
+        <nav class="nav">
+          <a href="upload.html" class="nav-link active">Upload</a>
+          <a href="dashboard.html" class="nav-link">Dashboard</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- CENTER WRAPPER -->
+    <main class="center-wrapper">
+      <div class="upload-container container">
+
+        <!-- FILE UPLOAD -->
+        <div class="card">
+          <h2>Upload Notes</h2>
+          <p>PDF, Images (JPG/PNG), or Document files.</p>
+
+          <!-- Drag area -->
+          <div id="drag-area" class="upload-area" tabindex="0">
+            <p>Drag & Drop files here</p>
+            <span>or</span>
+            <!-- visible but hidden by CSS; we still use it for accessibility -->
+            <input type="file" id="file-input" accept=".pdf,image/*,audio/*,.docx" style="display:none" />
+            <div style="margin-top:12px;">
+              <button id="browse-btn" type="button" class="btn">Browse Files</button>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <button id="process-btn" class="btn" type="button">Convert to Notes</button>
+          </div>
+        </div>
+
+        <!-- PASTE TEXT -->
+        <div class="card" id="paste">
+          <h2>Paste Text</h2>
+          <textarea id="paste-input" class="textarea" placeholder="Paste any text or notes..."></textarea>
+          <div style="margin-top:12px;">
+            <button id="paste-summarize-btn" class="btn" type="button">Summarize Text</button>
+          </div>
+        </div>
+
+        <!-- AUDIO -->
+        <div class="card" id="audio">
+          <h2>Audio to Notes</h2>
+          <p>Upload lecture or recorded audio (mp3, wav).</p>
+          <input id="audio-input" type="file" accept="audio/*" />
+          <div style="margin-top:12px;">
+            <button id="audio-convert-btn" class="btn" type="button">Convert to Text</button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer container">
+      <p>© 2025 UniSummarizer</p>
+    </footer>
+
+  </body>
+  </html>

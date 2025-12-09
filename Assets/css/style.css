@@ -1,0 +1,396 @@
+/* -----------------------------------
+   RESET
+----------------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background: #f7f7f9;
+  color: #222;
+  line-height: 1.6;
+}
+
+/* -----------------------------------
+   LAYOUT BASICS
+----------------------------------- */
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.section {
+  margin: 2rem 0;
+}
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* -----------------------------------
+   HEADER / NAV
+----------------------------------- */
+.header {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 0.75rem 0;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo img {
+  height: 32px;
+  margin-right: 0.5rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #222;
+  text-decoration: none;
+}
+
+.nav .nav-link {
+  margin-left: 1.25rem;
+  text-decoration: none;
+  color: #555;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.nav .nav-link:hover,
+.nav .nav-link.active {
+  color: #000;
+}
+
+/* -----------------------------------
+   CARD
+----------------------------------- */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* -----------------------------------
+   BUTTONS
+----------------------------------- */
+.btn {
+  display: inline-block;
+  background: #111;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #111;
+  color: #111;
+}
+
+.btn-outline:hover {
+  background: #111;
+  color: #fff;
+}
+
+/* -----------------------------------
+   HERO
+----------------------------------- */
+.hero {
+  margin-top: 3rem;
+}
+
+.hero-inner h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+/* -----------------------------------
+   UPLOAD AREA
+----------------------------------- */
+.upload-area {
+  border: 2px dashed #aaa;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  margin: 1.5rem 0;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  resize: vertical;
+}
+
+/* -----------------------------------
+   RESULT PAGE
+----------------------------------- */
+.result-box h2 {
+  margin-bottom: 0.75rem;
+}
+
+.key-points li {
+  margin: 0.4rem 0;
+}
+
+/* FLASHCARD */
+.flashcard {
+  background: #111;
+  color: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  height: 140px;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* -----------------------------------
+   DASHBOARD
+----------------------------------- */
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  background: #111;
+  color: #fff;
+  width: 240px;
+  padding: 2rem 1rem;
+}
+
+.sidebar-logo {
+  width: 55px;
+  margin-bottom: 1rem;
+}
+
+.logo-area h2 {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.logo-area span {
+  color: #aaa;
+}
+
+.nav-links a {
+  display: block;
+  padding: 0.8rem 1rem;
+  text-decoration: none;
+  color: #ddd;
+  border-radius: 6px;
+  transition: 0.2s;
+  margin-bottom: 0.3rem;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  background: #333;
+  color: #fff;
+}
+
+.logout {
+  margin-top: 1rem;
+  color: #ff4d4d !important;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.user img {
+  width: 36px;
+  border-radius: 50%;
+}
+
+/* STATS */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background: #fff;
+  padding: 1.5rem;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.stat-card h3 {
+  font-size: 2rem;
+}
+
+/* RECENT */
+.recent-item {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.view-btn {
+  background: #111;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* -----------------------------------
+   FOOTER
+----------------------------------- */
+.footer {
+  text-align: center;
+  padding: 2rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* -----------------------------------
+   RESPONSIVE
+----------------------------------- */
+@media (max-width: 768px) {
+  .hero-inner h1 {
+    font-size: 1.8rem;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    bottom: 0;
+    transition: 0.3s;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.center-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.upload-container {
+  width: 850px;       /* Center width */
+  max-width: 95%;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+/* Center wrapper for upload page */
+.center-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.upload-container {
+  width: 850px;
+  max-width: 95%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Drag area styles (visual + accessible focus) */
+.upload-area {
+  border: 2px dashed rgba(0,0,0,0.12);
+  padding: 28px;
+  border-radius: 10px;
+  background: #fff;
+  text-align: center;
+  transition: box-shadow .18s ease, transform .12s ease, border-color .12s ease;
+}
+
+.upload-area:focus {
+  outline: none;
+  box-shadow: 0 6px 18px rgba(76,124,246,0.12);
+  border-color: #4c7cf6;
+  transform: translateY(-2px);
+}
+
+.upload-area.drag-over {
+  border-color: #4c7cf6;
+  box-shadow: 0 8px 28px rgba(76,124,246,0.12);
+}
+
+/* ensure hidden input doesn't break layout */
+#file-input {
+  display: none;
+}
+
