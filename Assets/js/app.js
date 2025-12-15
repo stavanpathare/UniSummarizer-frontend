@@ -1,326 +1,232 @@
-/**
- * app.js
- * UniSummarizer - Frontend logic (vanilla JS)
- */
+/* ===========================
+   CONFIG
+=========================== */
+const API_BASE = "https://unisummarizer-backend.onrender.com/api";
 
 /* ===========================
-   Configuration
-   =========================== */
-const API_ENDPOINT = "/api/process";
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
-const ACCEPTED_FILE_TYPES = [
-  "application/pdf",
-  "image/png",
-  "image/jpeg",
-  "image/jpg",
-  "text/plain",
-  "audio/mpeg",
-  "audio/wav",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-];
+   HELPERS
+=========================== */
+const qs = (s) => document.querySelector(s);
 
-const STORAGE_KEY = "unisummarizer_saved_notes";
-
-/* ===========================
-   Small DOM utils
-   =========================== */
-const qs  = (s, r = document) => r.querySelector(s);
-const qsa = (s, r = document) => Array.from(r.querySelectorAll(s));
-
-function el(tag, attrs = {}, children = []) {
-  const d = document.createElement(tag);
-  for (const k in attrs) {
-    if (k === "class") d.className = attrs[k];
-    else if (k === "text") d.textContent = attrs[k];
-    else if (k === "html") d.innerHTML = attrs[k];
-    else d.setAttribute(k, attrs[k]);
-  }
-  children.forEach(c => d.appendChild(c));
-  return d;
-}
-
-/* ===========================
-   Toast
-   =========================== */
-function showToast(msg, type = "info") {
-  const id = `toast-${Date.now()}`;
-  const t = el("div", { class: `us-toast us-toast-${type}`, id, text: msg });
-
-  Object.assign(t.style, {
-    position: "fixed",
-    right: "20px",
-    bottom: "20px",
-    background: type === "error" ? "#ff6b6b" : "#111",
-    color: "#fff",
-    padding: "10px 14px",
-    borderRadius: "8px",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
-    zIndex: 9999,
-    opacity: 0,
-    transition: "opacity .18s"
-  });
-
+function showToast(msg, error = false) {
+  const t = document.createElement("div");
+  t.className = `us-toast ${error ? "us-toast-error" : ""}`;
+  t.textContent = msg;
   document.body.appendChild(t);
-  requestAnimationFrame(() => t.style.opacity = 1);
+  setTimeout(() => t.remove(), 3000);
+}
 
-  setTimeout(() => {
-    t.style.opacity = 0;
-    setTimeout(() => t.remove(), 220);
-  }, 3000);
+function showLoader(show = true) {
+  let l = qs(".us-loader-wrap");
+  if (show && !l) {
+    l = document.createElement("div");
+    l.className = "us-loader-wrap";
+    l.innerHTML = `
+      <div class="us-loader-box">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+      </div>`;
+    document.body.appendChild(l);
+  }
+  if (!show && l) l.remove();
 }
 
 /* ===========================
-   Network helpers
-   =========================== */
-async function postFormData(url, formData, timeout = 600000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
+   UPLOAD PAGE
+=========================== */
+async function initUploadPage() {
+  const fileInput = qs("#file-input");
+  const processBtn = qs("#process-btn");
+  const pasteBtn = qs("#paste-summarize-btn");
+  const pasteInput = qs("#paste-input");
 
-  try {
-    const res = await fetch(url, { method: "POST", body: formData, signal: controller.signal });
-    clearTimeout(timer);
-    if (!res.ok) throw new Error(`Server ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    clearTimeout(timer);
-    throw err;
-  }
-}
+  // 📄 PDF UPLOAD
+  processBtn?.addEventListener("click", async () => {
+    if (!fileInput.files[0]) {
+      showToast("Select a PDF first", true);
+      return;
+    }
 
-async function postJson(url, data, timeout = 180000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
+    const fd = new FormData();
+    fd.append("file", fileInput.files[0]); // ✅ correct key
 
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      signal: controller.signal,
-      body: JSON.stringify(data)
-    });
-    clearTimeout(timer);
-    if (!res.ok) throw new Error(`Server ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    clearTimeout(timer);
-    throw err;
-  }
-}
+    showLoader(true);
+    try {
+      const res = await fetch(`${API_BASE}/upload`, {
+        method: "POST",
+        body: fd
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
 
-/* ===========================
-   Loader
-   =========================== */
-function _createLoader() {
-  const wrap = el("div", { class: "us-loader-wrap" });
-  wrap.innerHTML = `
-    <div class="us-loader-box">
-      <div class="spinner"></div>
-      <div style="margin-top:10px;color:#111;font-weight:600">Processing...</div>
-    </div>
-  `;
-  Object.assign(wrap.style, {
-    position: "fixed",
-    inset: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "rgba(255,255,255,0.6)",
-    zIndex: 9998
+      window.location.href = `result.html?id=${data.id}`;
+    } catch (e) {
+      showToast(e.message, true);
+    }
+    showLoader(false);
   });
-  return wrap;
-}
 
-function attachLoader() {
-  if (!qs(".us-loader-wrap")) {
-    document.body.appendChild(_createLoader());
-  }
-}
+  // ✏️ TEXT SUBMIT
+  pasteBtn?.addEventListener("click", async () => {
+    const text = pasteInput.value.trim();
+    if (!text) {
+      showToast("Paste some text", true);
+      return;
+    }
 
-function detachLoader() {
-  qs(".us-loader-wrap")?.remove();
-}
+    showLoader(true);
+    try {
+      const res = await fetch(`${API_BASE}/text`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "AI failed");
 
-/* ===========================
-   LocalStorage helpers
-   =========================== */
-const getSavedNotes = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-
-function saveNoteToStorage(note) {
-  const arr = getSavedNotes();
-  arr.unshift(note);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-}
-
-function deleteSavedNote(index) {
-  const arr = getSavedNotes();
-  arr.splice(index, 1);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+      window.location.href = `result.html?id=${data.id}`;
+    } catch (e) {
+      showToast(e.message, true);
+    }
+    showLoader(false);
+  });
 }
 
 /* ===========================
-   Mock fallback
-   =========================== */
-function getMockResult() {
-  return {
-    summary: "Mock summary for UI testing.",
-    keyPoints: [
-      "Key concept A",
-      "Key concept B",
-      "Key concept C"
-    ],
-    flashcards: [
-      { q: "What is A?", a: "A is something" }
-    ],
-    mcq: [
-      {
-        q: "Which is correct?",
-        options: ["A", "B", "C"],
-        answerIndex: 0
-      }
-    ],
-    meta: { source: "mock" }
+   RESULT PAGE
+=========================== */
+async function initResultPage() {
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id) return;
+
+  showLoader(true);
+  try {
+    const res = await fetch(`${API_BASE}/result/${id}`);
+    const data = await res.json();
+
+    if (!res.ok) throw new Error("Result not found");
+
+    // ✅ STORE DATA GLOBALLY
+    window.resultData = data;
+    console.log("🔥 RESULT DATA:", data);
+
+    /* ---------- SUMMARY ---------- */
+    qs("#summary-output").textContent = data.summary || "No summary";
+
+    /* ---------- KEY POINTS ---------- */
+    const kp = qs("#key-points");
+    kp.innerHTML = "";
+    (data.keyPoints || []).forEach(p => {
+      const li = document.createElement("li");
+      li.textContent = p;
+      kp.appendChild(li);
+    });
+
+    /* ---------- FLASHCARDS ---------- */
+   const flashBox = document.getElementById("flashcards");
+flashBox.innerHTML = "";
+
+resultData.flashcards.forEach(f => {
+  const card = document.createElement("div");
+  card.className = "flashcard";
+
+  card.textContent = f.question;
+
+  let flipped = false;
+
+  card.onclick = () => {
+    card.textContent = flipped ? f.question : f.answer;
+    flipped = !flipped;
   };
-}
 
-/* ===========================
-   Renderers
-   =========================== */
-function renderSummary(summaryText) {
-  qs("#summary-output")?.(textContent = summaryText || "");
-}
+  flashBox.appendChild(card);
+});
 
-function renderKeyPoints(points = []) {
-  const ul = qs("#key-points");
-  if (!ul) return;
-  ul.innerHTML = "";
-  points.forEach(p => ul.appendChild(el("li", { text: p })));
-}
+    /* ---------- MCQs ---------- */
+    const mcqBox = document.getElementById("mcq-list");
+mcqBox.innerHTML = "";
 
-/* flashcards */
-function escapeHtml(str = "") {
-  return str.replace(/[&<>"']/g, m =>
-    ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])
-  );
-}
+resultData.mcq.forEach(q => {
+  const block = document.createElement("div");
+  block.className = "mcq";
 
-function renderFlashcards(cards = []) {
-  const wrap = qs("#flashcards");
-  if (!wrap) return;
-  wrap.innerHTML = "";
+  const title = document.createElement("h4");
+  title.textContent = q.question;
+  block.appendChild(title);
 
-  cards.forEach(c => {
-    const card = el("div", { class: "flashcard" });
-    const front = el("div", { class: "flash-front", html: `<b>Q:</b> ${escapeHtml(c.q)}` });
-    const back  = el("div", { class: "flash-back",  html: `<b>A:</b> ${escapeHtml(c.a)}` });
+  let locked = false;
 
-    back.style.display = "none";
-    card.append(front, back);
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement("div");
+    btn.className = "mcq-option";
+    btn.textContent = opt;
 
-    card.onclick = () => {
-      const showBack = back.style.display === "none";
-      front.style.display = showBack ? "none" : "block";
-      back.style.display  = showBack ? "block" : "none";
+    btn.onclick = () => {
+      if (locked) return;
+      locked = true;
+
+      // correct → green
+      block.children[q.answerIndex + 1].style.background = "#86efac";
+
+      // wrong clicked → red
+      if (idx !== q.answerIndex) {
+        btn.style.background = "#fca5a5";
+      }
     };
 
-    wrap.appendChild(card);
+    block.appendChild(btn);
   });
+
+  mcqBox.appendChild(block);
+});
+
+  } catch (e) {
+    showToast(e.message, true);
+  }
+  showLoader(false);
 }
+/* ===========================
+   DASHBOARD
+=========================== */
+async function initDashboard() {
+  const list = qs("#recent-list");
+  const stats = qs("#stats-root");
 
-/* MCQ */
-function renderMCQs(mcqs = []) {
-  const root = qs("#mcq-list");
-  if (!root) return;
-  root.innerHTML = "";
+  try {
+    const res = await fetch(`${API_BASE}/files`);
+    const files = await res.json();
 
-  mcqs.forEach((m, idx) => {
-    const wrap = el("div", { class: "mcq" });
-    wrap.appendChild(el("h4", { text: m.q }));
+    stats.innerHTML = `
+      <div class="stat-card">
+        <h3>${files.length}</h3>
+        <p>Notes</p>
+      </div>`;
 
-    m.options.forEach((opt, i) => {
-      const label = el("label");
-      const input = el("input", { type: "radio", name: `mcq-${idx}` });
-      label.append(input, document.createTextNode(" " + opt));
-
-      input.onchange = () => {
-        const labs = wrap.querySelectorAll("label");
-        labs.forEach(lb => lb.style.background = "");
-        label.style.background =
-          i === m.answerIndex
-            ? "linear-gradient(90deg,#e6ffee,#d2fdd8)"
-            : "linear-gradient(90deg,#ffe6e6,#ffd2d2)";
-      };
-
-      wrap.appendChild(label);
+    list.innerHTML = "";
+    files.forEach(f => {
+      const div = document.createElement("div");
+      div.className = "recent-item";
+      div.innerHTML = `
+        <div>
+          <h3>${f.title || "Untitled"}</h3>
+          <p>${new Date(f.createdAt).toLocaleString()}</p>
+        </div>
+        <button class="view-btn">View</button>
+      `;
+      div.querySelector("button").onclick = () =>
+        (window.location.href = `result.html?id=${f._id}`);
+      list.appendChild(div);
     });
-    root.appendChild(wrap);
-  });
+  } catch {
+    showToast("Dashboard load failed", true);
+  }
 }
 
 /* ===========================
-   Utilities
-   =========================== */
-function downloadTextAsFile(text, filename) {
-  const blob = new Blob([text], { type: "text/plain" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function debounce(fn, wait = 250) {
-  let t;
-  return (...a) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...a), wait);
-  };
-}
-
-/* ===========================
-   Main result builder
-   =========================== */
-function makeNoteFromResult(result, source = "upload") {
-  return {
-    id: Date.now().toString(36),
-    title: result.meta?.title || source,
-    summary: result.summary || "",
-    keyPoints: result.keyPoints || [],
-    flashcards: result.flashcards || [],
-    mcq: result.mcq || [],
-    createdAt: Date.now(),
-    meta: result.meta || {}
-  };
-}
-
-/* ===========================
-   Render all result
-   =========================== */
-function renderAllResult(res) {
-  renderSummary(res.summary);
-  renderKeyPoints(res.keyPoints);
-  renderFlashcards(res.flashcards);
-  renderMCQs(res.mcq);
-}
-
-/* ===========================
-   Page Detect
-   =========================== */
+   BOOT
+=========================== */
 document.addEventListener("DOMContentLoaded", () => {
-
-  /* upload.html */
-  if (qs("#drag-area") || qs("#paste-input")) {
-    initUploadPage();
-  }
-
-  /* result.html */
-  if (qs("#summary-output")) {
-    const notes = getSavedNotes();
-    renderAllResult(notes[0] || getMockResult());
-  }
-
-  /* dashboard.html */
-  if (qs(".recent-list")) {
-    renderDashboardList();
-  }
+  if (qs("#file-input")) initUploadPage();
+  if (qs("#summary-output")) initResultPage();
+  if (qs("#recent-list")) initDashboard();
 });

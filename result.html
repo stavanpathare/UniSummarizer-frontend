@@ -4,8 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Results • UniSummarizer</title>
-  <link rel="icon" type="icon/png" href="Assets/img/logo.png">
-
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
 
   <link rel="stylesheet" href="assets/css/style.css" />
   <script src="assets/js/app.js" defer></script>
@@ -27,60 +26,42 @@
     </div>
   </header>
 
+  <!-- ✅ CENTERED RESULT PAGE -->
+  <main class="result-page">
+    <div class="result-card">
 
-  <main class="container section">
-
-    <!-- SUMMARY -->
-    <div class="card result-box">
-      <h2>Summary</h2>
-      <p id="summary-output">Generated summary will appear here...</p>
-    </div>
-
-
-    <!-- KEY POINTS -->
-    <div class="card result-box">
-      <h2>Key Points</h2>
-      <ul id="key-points" class="key-points">
-        <li>Point 1...</li>
-        <li>Point 2...</li>
-      </ul>
-    </div>
-
-
-    <!-- FLASHCARDS -->
-    <div class="card result-box">
-      <h2>Flashcards</h2>
-      <div class="grid grid-2" id="flashcards">
-        <div class="flashcard">
-          <div class="front">Question?</div>
-          <div class="back">Answer...</div>
-        </div>
+      <!-- SUMMARY -->
+      <div class="result-box">
+        <h2>Summary</h2>
+        <p id="summary-output">Generated summary will appear here...</p>
       </div>
-    </div>
 
-
-    <!-- MCQ -->
-    <div class="card result-box">
-      <h2>MCQ Questions</h2>
-      <div id="mcq-list">
-        <div class="mcq">
-          <h4>Question 1?</h4>
-          <label><input type="radio" /> Option A</label>
-          <label><input type="radio" /> Option B</label>
-          <label><input type="radio" /> Option C</label>
-        </div>
+      <!-- KEY POINTS -->
+      <div class="result-box">
+        <h2>Key Points</h2>
+        <ul id="key-points"></ul>
       </div>
-    </div>
 
-    
-    <!-- ACTIONS -->
-    <div class="card">
-      <button class="btn">Download PDF</button>
-      <button class="btn btn-outline">Save to Dashboard</button>
-    </div>
+      <!-- FLASHCARDS -->
+      <div class="result-box">
+        <h2>Flashcards</h2>
+        <div id="flashcards" class="flashcards"></div>
+      </div>
 
+      <!-- MCQ -->
+      <div class="result-box">
+        <h2>MCQ Questions</h2>
+        <div id="mcq-list"></div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions-row">
+        <button id="download-btn" class="btn">Download Summary</button>
+        <button id="save-btn" class="btn btn-outline">Save to Dashboard</button>
+      </div>
+
+    </div>
   </main>
-
 
   <footer class="footer container">
     <p>© 2025 UniSummarizer</p>

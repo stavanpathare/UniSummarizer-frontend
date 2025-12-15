@@ -4,8 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard • UniSummarizer</title>
-  <link rel="icon" type="icon/png" href="Assets/img/logo.png">
-
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
 
   <link rel="stylesheet" href="assets/css/style.css" />
   <script src="assets/js/app.js" defer></script>
@@ -30,50 +29,24 @@
       </nav>
     </aside>
 
-
     <!-- MAIN CONTENT -->
-    <main class="main-content">
+    <main class="main-content container">
 
       <!-- TOP BAR -->
       <div class="top-bar">
         <h1>Dashboard</h1>
         <div class="user">
-          <img src="assets/img/user.png" />
+          <img src="assets/img/user.png" alt="user" />
         </div>
       </div>
-
 
       <!-- STATS -->
-      <div class="stats">
-        <div class="stat-card">
-          <h3>12</h3>
-          <p>Summaries</p>
-        </div>
-        <div class="stat-card">
-          <h3>32</h3>
-          <p>Flashcards</p>
-        </div>
-        <div class="stat-card">
-          <h3>9</h3>
-          <p>Quizzes</p>
-        </div>
-      </div>
-
+      <div class="stats" id="stats-root"></div>
 
       <!-- RECENT -->
       <div class="recent">
         <h2>Recent Notes</h2>
-
-        <div class="recent-list">
-          <div class="recent-item">
-            <div>
-              <h3>DBMS Unit 1</h3>
-              <p>Generated: 12 Feb 2025</p>
-            </div>
-            <button class="view-btn">View</button>
-          </div>
-
-        </div>
+        <div class="recent-list" id="recent-list"></div>
       </div>
 
     </main>
