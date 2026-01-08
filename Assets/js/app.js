@@ -2,6 +2,7 @@
    CONFIG
 =========================== */
 const API_BASE = "https://unisummarizer-backend.onrender.com/api";
+// const API_BASE = "http://localhost:5000/api";
 
 /* ===========================
    HELPERS
@@ -126,7 +127,7 @@ async function initResultPage() {
    const flashBox = document.getElementById("flashcards");
 flashBox.innerHTML = "";
 
-resultData.flashcards.forEach(f => {
+(data.flashcards || []).forEach(f => {
   const card = document.createElement("div");
   card.className = "flashcard";
 
@@ -143,10 +144,10 @@ resultData.flashcards.forEach(f => {
 });
 
     /* ---------- MCQs ---------- */
-    const mcqBox = document.getElementById("mcq-list");
+const mcqBox = document.getElementById("mcq-list");
 mcqBox.innerHTML = "";
 
-resultData.mcq.forEach(q => {
+(data.mcq || []).forEach((q) => {
   const block = document.createElement("div");
   block.className = "mcq";
 
@@ -155,6 +156,17 @@ resultData.mcq.forEach(q => {
   block.appendChild(title);
 
   let locked = false;
+  const optionButtons = [];
+
+  // 🔧 FIX: determine correct index safely
+  let correctIndex = q.answerIndex;
+
+  // fallback if AI sends "answer" instead of index
+  if (correctIndex === undefined && q.answer !== undefined) {
+    correctIndex = q.options.indexOf(q.answer);
+  }
+
+  console.log("Resolved correct index:", correctIndex);
 
   q.options.forEach((opt, idx) => {
     const btn = document.createElement("div");
@@ -165,21 +177,23 @@ resultData.mcq.forEach(q => {
       if (locked) return;
       locked = true;
 
-      // correct → green
-      block.children[q.answerIndex + 1].style.background = "#86efac";
+      // ✅ highlight correct
+      if (correctIndex !== -1 && correctIndex !== undefined) {
+        optionButtons[correctIndex].style.background = "#86efac";
+      }
 
-      // wrong clicked → red
-      if (idx !== q.answerIndex) {
+      // ❌ highlight wrong clicked
+      if (idx !== correctIndex) {
         btn.style.background = "#fca5a5";
       }
     };
 
+    optionButtons.push(btn);
     block.appendChild(btn);
   });
 
   mcqBox.appendChild(block);
 });
-
   } catch (e) {
     showToast(e.message, true);
   }

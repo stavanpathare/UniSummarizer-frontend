@@ -171,21 +171,19 @@ body { font-family: "Poppins", sans-serif; background: #f7f7f9; color: #222; lin
 ========================= */
 
 .result-page {
-  min-height: 100vh;
+  min-height: calc(100vh - 120px);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 24px;
-  background: #f4f6fb;
+  align-items: flex-start;
+  padding: 32px 16px;
 }
 
 .result-card {
-  background: #ffffff;
   width: 100%;
   max-width: 900px;
-  padding: 32px;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 /* headings */
@@ -222,7 +220,7 @@ body { font-family: "Poppins", sans-serif; background: #f7f7f9; color: #222; lin
 
 .flashcard {
   padding: 16px;
-  background: #f1f3ff;
+  background: linear-gradient(135deg,#4c7cf6,#335fd1);
   border-radius: 12px;
   cursor: pointer;
   text-align: center;
