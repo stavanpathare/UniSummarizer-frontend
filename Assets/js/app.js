@@ -1,7 +1,7 @@
 /* ===========================
    CONFIG
 =========================== */
-const API_BASE = "https://unisummarizer-backend.onrender.com/api";
+const API_BASE = "https://unisummarizer-backend.onrender.com/api";   
 // const API_BASE = "http://localhost:5000/api";
 
 /* ===========================

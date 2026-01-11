@@ -55,7 +55,10 @@
 
       <!-- ACTIONS -->
       <div class="actions-row">
-        <button id="download-btn" class="btn">Download Summary</button>
+        <div class="download-actions">
+  <button id="downloadTxt" class="btn">Download TXT</button>
+  <button id="downloadPdf" class="btn">Download PDF</button>
+</div>
         <button id="save-btn" class="btn btn-outline">Save to Dashboard</button>
       </div>
 
@@ -65,6 +68,75 @@
   <footer class="footer container">
     <p>© 2025 UniSummarizer</p>
   </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+  function getSummaryAndKeyPoints() {
+    const summaryEl = document.getElementById("summary-output");
+    const keyPointsEls = document.querySelectorAll("#key-points li");
+
+    const summary = summaryEl?.innerText.trim() || "";
+
+    const keyPoints = Array.from(keyPointsEls)
+      .map((li, i) => `${i + 1}. ${li.innerText.trim()}`)
+      .join("\n");
+
+    if (!summary && keyPointsEls.length === 0) return null;
+
+    return {
+      summary,
+      keyPoints,
+      combinedText: `SUMMARY\n\n${summary}\n\nKEY POINTS\n\n${keyPoints}`
+    };
+  }
+
+  /* -------- TXT DOWNLOAD -------- */
+  document.getElementById("downloadTxt").addEventListener("click", () => {
+    const data = getSummaryAndKeyPoints();
+    if (!data) return alert("Nothing to download");
+
+    const blob = new Blob([data.combinedText], {
+      type: "text/plain;charset=utf-8"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "UniSummarizer_Summary.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  /* -------- PDF DOWNLOAD -------- */
+  document.getElementById("downloadPdf").addEventListener("click", () => {
+    const data = getSummaryAndKeyPoints();
+    if (!data) return alert("Nothing to download");
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    pdf.setFontSize(16);
+    pdf.text("SUMMARY", 14, 20);
+
+    pdf.setFontSize(12);
+    pdf.text(pdf.splitTextToSize(data.summary, 180), 14, 30);
+
+    let y = pdf.lastAutoTable?.finalY || 60;
+
+    pdf.setFontSize(16);
+    pdf.text("KEY POINTS", 14, y);
+
+    pdf.setFontSize(12);
+    pdf.text(
+      pdf.splitTextToSize(data.keyPoints, 180),
+      14,
+      y + 10
+    );
+
+    pdf.save("UniSummarizer_Summary.pdf");
+  });
+</script>
 
 </body>
 </html>
