@@ -123,22 +123,34 @@ async function initResultPage() {
       kp.appendChild(li);
     });
 
-    /* ---------- FLASHCARDS ---------- */
-   const flashBox = document.getElementById("flashcards");
+    /* ---------- FLASHCARDS (FLIP ANIMATION) ---------- */
+const flashBox = document.getElementById("flashcards");
 flashBox.innerHTML = "";
 
 (data.flashcards || []).forEach(f => {
   const card = document.createElement("div");
   card.className = "flashcard";
+  card.tabIndex = 0; // accessibility
 
-  card.textContent = f.question;
+  card.innerHTML = `
+    <div class="flashcard-inner">
+      <div class="flashcard-front">${f.question}</div>
+      <div class="flashcard-back">${f.answer}</div>
+    </div>
+  `;
 
-  let flipped = false;
+  // click / tap
+  card.addEventListener("click", () => {
+    card.classList.toggle("is-flipped");
+  });
 
-  card.onclick = () => {
-    card.textContent = flipped ? f.question : f.answer;
-    flipped = !flipped;
-  };
+  // keyboard support (Enter / Space)
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      card.classList.toggle("is-flipped");
+    }
+  });
 
   flashBox.appendChild(card);
 });
