@@ -136,6 +136,46 @@
 
     pdf.save("UniSummarizer_Summary.pdf");
   });
+  /* ===========================
+   Save Btn
+=========================== */
+document.getElementById("save-btn").addEventListener("click", () => {
+
+  const summary = document.getElementById("summary-output").innerText;
+
+  const keyPoints = Array.from(
+    document.querySelectorAll("#key-points li")
+  ).map(li => li.innerText);
+
+  const flashcards = Array.from(
+    document.querySelectorAll(".flashcard")
+  ).map(card => ({
+    question: card.dataset.question || card.innerText,
+    answer: card.dataset.answer || ""
+  }));
+
+  if (!summary.trim()) {
+    alert("No summary to save.");
+    return;
+  }
+
+  const savedSummaries = JSON.parse(localStorage.getItem("uniSummaries")) || [];
+
+  const newSummary = {
+    id: Date.now(), // unique ID
+    title: "Generated Summary",
+    summary,
+    keyPoints,
+    flashcards,
+    createdAt: new Date().toLocaleString()
+  };
+
+  savedSummaries.push(newSummary);
+
+  localStorage.setItem("uniSummaries", JSON.stringify(savedSummaries));
+
+  alert("Saved to Dashboard!");
+});
 </script>
 
 </body>
