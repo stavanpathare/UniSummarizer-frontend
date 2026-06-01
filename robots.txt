@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://unisummarizer.netlify.app/sitemap.xml
