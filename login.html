@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login • UniSummarizer</title>
+  <link rel="icon" type="image/png" href="assets/img/login.png" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/api.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body class="page-login">
+
+  <div class="auth-topbar">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <img src="assets/img/logo.png" alt="logo" />
+        <span>UniSummarizer</span>
+      </a>
+    </div>
+  </div>
+
+  <main class="container center-wrapper">
+    <section class="card" style="max-width:420px;width:100%;">
+      <h2>Login to UniSummarizer</h2>
+      <div style="margin-top:12px;">
+        <label>Email</label>
+        <input id="email" type="email" class="form-input" placeholder="you@example.com" />
+      </div>
+      <div style="margin-top:12px;">
+        <label>Password</label>
+        <input id="password" type="password" class="form-input" placeholder="••••••••" />
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:8px;align-items:center;justify-content:space-between;">
+        <button id="login-btn" class="btn">Login</button>
+        <a href="register.html" class="muted">Create account</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('login-btn').addEventListener('click', async ()=>{
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      if(!email || !password) return showToast('Provide email and password', true);
+      try{
+        showLoader(true);
+        const res = await window.api.loginUser({ email, password });
+        if (res && res.token) {
+          localStorage.setItem('authToken', res.token);
+          showToast('Login successful');
+          window.location.href = 'dashboard.html';
+        } else {
+          throw new Error('Login failed');
+        }
+      } catch (e) {
+        showToast(e.message || 'Login failed', true);
+      } finally { showLoader(false); }
+    });
+  </script>
+
+</body>
+</html>

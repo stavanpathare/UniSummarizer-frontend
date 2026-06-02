@@ -17,6 +17,19 @@
 </url>
 
 <url>
+<loc>https://unisummarizer.netlify.app/flashcards.html</loc>
+<lastmod>2026-04-02</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://unisummarizer.netlify.app/mcqs.html</loc>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
 <loc>https://unisummarizer.netlify.app/request.html</loc>
 <lastmod>2026-04-02</lastmod>
 <changefreq>weekly</changefreq>
@@ -28,6 +41,20 @@
 <lastmod>2026-04-02</lastmod>
 <changefreq>weekly</changefreq>
 <priority>0.8</priority>
+</url>
+
+<url>
+<loc>https://unisummarizer.netlify.app/login.html</loc>
+<lastmod>2026-04-02</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.7</priority>
+</url>
+
+<url>
+<loc>https://unisummarizer.netlify.app/register.html</loc>
+<lastmod>2026-04-02</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.7</priority>
 </url>
 
 </urlset>

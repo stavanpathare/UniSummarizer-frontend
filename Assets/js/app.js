@@ -18,6 +18,27 @@ function showToast(msg, error = false) {
   setTimeout(() => t.remove(), 3000);
 }
 
+/* ===========================
+   AUTH HELPERS
+   - keep minimal helpers for token checks and logout
+============================ */
+function getAuthToken() {
+  return localStorage.getItem("authToken");
+}
+
+function requireAuth(redirectTo = "login.html") {
+  if (!getAuthToken()) {
+    window.location.href = redirectTo;
+    return false;
+  }
+  return true;
+}
+
+function logout() {
+  localStorage.removeItem("authToken");
+  window.location.href = "login.html";
+}
+
 function showLoader(show = true) {
   let l = qs(".us-loader-wrap");
   if (show && !l) {
@@ -216,37 +237,128 @@ mcqBox.innerHTML = "";
    DASHBOARD
 =========================== */
 async function initDashboard() {
+  // Require auth for dashboard
+  if (!requireAuth()) return;
+
   const list = qs("#recent-list");
   const stats = qs("#stats-root");
 
   try {
-    const res = await fetch(`${API_BASE}/files`);
-    const files = await res.json();
+    showLoader(true);
+    const s = await window.api.getStats();
+    const files = await window.api.getSummaries();
 
     stats.innerHTML = `
       <div class="stat-card">
-        <h3>${files.length}</h3>
-        <p>Notes</p>
+        <h3>${s.totalSummaries || 0}</h3>
+        <p>Total Summaries</p>
+      </div>
+      <div class="stat-card">
+        <h3>${s.totalFlashcards || 0}</h3>
+        <p>Total Flashcards</p>
+      </div>
+      <div class="stat-card">
+        <h3>${s.totalMcqs || 0}</h3>
+        <p>Total MCQs</p>
       </div>`;
 
     list.innerHTML = "";
-    files.forEach(f => {
+    (files || []).slice().reverse().forEach(f => {
       const div = document.createElement("div");
       div.className = "recent-item";
       div.innerHTML = `
         <div>
-          <h3>${f.title || "Untitled"}</h3>
-          <p>${new Date(f.createdAt).toLocaleString()}</p>
+          <strong>${f.title || "Untitled"}</strong>
+          <p class="muted">${new Date(f.createdAt).toLocaleString()}</p>
         </div>
-        <button class="view-btn">View</button>
+
+        <div class="recent-actions">
+          <button class="view-btn">View</button>
+          <button class="delete-btn">Delete</button>
+        </div>
       `;
-      div.querySelector("button").onclick = () =>
-        (window.location.href = `result.html?id=${f._id}`);
+
+      div.querySelector(".view-btn").addEventListener("click", async () => {
+        try {
+          showLoader(true);
+          const detail = await window.api.getSummary(f._id);
+          openSummaryModal(detail);
+        } catch (e) {
+          showToast(e.message || 'Failed to load summary', true);
+        } finally { showLoader(false); }
+      });
+
+      div.querySelector(".delete-btn").addEventListener("click", async () => {
+        const ok = confirm("Are you sure you want to delete this summary?");
+        if (!ok) return;
+        try {
+          showLoader(true);
+          await window.api.deleteSummary(f._id);
+          showToast("Deleted successfully");
+          // remove from DOM
+          div.remove();
+          // refresh stats
+          const ns = await window.api.getStats();
+          stats.querySelectorAll(".stat-card").forEach((c, i) => {
+            // re-render basic values
+          });
+          // simple approach: re-run initDashboard to refresh
+          await initDashboard();
+        } catch (e) {
+          showToast(e.message || "Delete failed", true);
+        }
+        showLoader(false);
+      });
+
       list.appendChild(div);
     });
-  } catch {
-    showToast("Dashboard load failed", true);
+  } catch (e) {
+    showToast(e.message || "Dashboard load failed", true);
   }
+  showLoader(false);
+}
+
+/* ==============================
+   SUMMARY MODAL (used by dashboard)
+============================== */
+function openSummaryModal(data) {
+  const modal = document.createElement("div");
+  modal.className = "summary-modal";
+
+  modal.innerHTML = `
+    <div class="summary-modal-content">
+      <h2>${data.title || 'Summary'}</h2>
+      <p class="muted">${new Date(data.createdAt).toLocaleString()}</p>
+
+      <h3>Summary</h3>
+      <p>${data.summary || ''}</p>
+
+      <h3>Key Points</h3>
+      <ul>
+        ${(data.keyPoints || []).map(p => `<li>${p}</li>`).join('')}
+      </ul>
+
+      <h3>Flashcards</h3>
+      <div class="modal-flashcards">
+        ${(data.flashcards || []).map(card => `
+          <div class="modal-flashcard"><strong>Q:</strong> ${card.question}<br><strong>A:</strong> ${card.answer}</div>
+        `).join('')}
+      </div>
+
+      <h3>MCQs</h3>
+      <div class="modal-mcqs">
+        ${(data.mcqs || []).map(mc => `
+          <div class="mcq"><h4>${mc.question}</h4>${(mc.options||[]).map(opt=>`<div class="mcq-option">${opt}</div>`).join('')}</div>
+        `).join('')}
+      </div>
+
+      <div style="margin-top:12px;text-align:right;"><button class="btn close-btn">Close</button></div>
+    </div>
+  `;
+
+  modal.querySelector('.close-btn').addEventListener('click', ()=> modal.remove());
+  modal.addEventListener('click', (e)=> { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
 }
 
 
@@ -257,4 +369,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (qs("#file-input")) initUploadPage();
   if (qs("#summary-output")) initResultPage();
   if (qs("#recent-list")) initDashboard();
+  const logoutLink = qs('.logout');
+  if (logoutLink) logoutLink.addEventListener('click', (e)=>{ e.preventDefault(); logout(); });
 });

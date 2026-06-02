@@ -73,6 +73,15 @@ body { font-family: "Poppins", sans-serif; background: #f7f7f9; color: #222; lin
 
 .textarea { width:100%; min-height:140px; padding:1rem; border-radius:10px; border:1px solid #e6e6e6; }
 
+/* Compact single-line input used on auth forms to avoid large textareas */
+.form-input { width:100%; padding:0.65rem 0.9rem; border-radius:8px; border:1px solid #e6e6e6; font-size:1rem; height:44px; }
+
+/* AUTH TOPBAR (black strip used on login/register) */
+.auth-topbar { background:#0f1724; color:#fff; padding:12px 0; }
+.auth-topbar .header-inner { display:flex; align-items:center; justify-content:flex-start; gap:12px; }
+.auth-topbar .logo img { height:28px; }
+.auth-topbar .logo span { color:#fff; font-weight:700; }
+
 /* -----------------------------------
    RESULTS
 ----------------------------------- */

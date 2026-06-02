@@ -4,9 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Results • UniSummarizer</title>
-  <link rel="icon" type="image/png" href="assets/img/logo.png" />
+  <link rel="icon" type="image/png" href="assets/img/output.png" />
 
   <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/api.js" defer></script>
   <script src="assets/js/app.js" defer></script>
 </head>
 <body class="page-result">
@@ -141,41 +142,55 @@
    Save Btn
 =========================== */
 document.getElementById("save-btn").addEventListener("click", () => {
-
-  const summary = document.getElementById("summary-output").innerText;
-
-  const keyPoints = Array.from(
-    document.querySelectorAll("#key-points li")
-  ).map(li => li.innerText);
-
-  const flashcards = Array.from(
-    document.querySelectorAll(".flashcard")
-  ).map(card => ({
-    question: card.dataset.question || card.innerText,
-    answer: card.dataset.answer || ""
-  }));
-
-  if (!summary.trim()) {
-    alert("No summary to save.");
+  // Save to backend using API utility (requires auth)
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    showToast("Please login to save summaries", true);
+    window.location.href = "login.html";
     return;
   }
 
-  const savedSummaries = JSON.parse(localStorage.getItem("uniSummaries")) || [];
+  const summary = document.getElementById("summary-output").innerText || "";
+  const keyPoints = Array.from(document.querySelectorAll("#key-points li")).map(li => li.innerText);
+  const flashcards = Array.from(document.querySelectorAll(".flashcard")).map(card => ({
+    question: card.querySelector('.flashcard-front')?.innerText || card.innerText,
+    answer: card.querySelector('.flashcard-back')?.innerText || ""
+  }));
 
-  const newSummary = {
-    id: Date.now(), // unique ID
-    title: "Generated Summary",
+  const mcqs = Array.from(document.querySelectorAll('.mcq')).map(block => {
+    const question = block.querySelector('h4')?.innerText || '';
+    const optionEls = Array.from(block.querySelectorAll('.mcq-option'));
+    const options = optionEls.map(o => o.innerText);
+    const answerIndex = optionEls.findIndex(o => {
+      const inline = (o.style && o.style.background) || '';
+      const computed = getComputedStyle ? getComputedStyle(o).backgroundColor : '';
+      return inline === '#86efac' || inline === '#86efac' || computed === 'rgb(134, 239, 172)';
+    });
+    return { question, options, answerIndex: answerIndex >= 0 ? answerIndex : 0 };
+  });
+
+  if (!summary.trim()) {
+    showToast('No summary to save', true);
+    return;
+  }
+
+  const payload = {
+    title: 'Generated Summary',
     summary,
     keyPoints,
     flashcards,
-    createdAt: new Date().toLocaleString()
+    mcqs
   };
 
-  savedSummaries.push(newSummary);
-
-  localStorage.setItem("uniSummaries", JSON.stringify(savedSummaries));
-
-  alert("Saved to Dashboard!");
+  showLoader(true);
+  window.api.saveSummary(payload)
+    .then(() => {
+      showToast('Saved to Dashboard');
+    })
+    .catch(err => {
+      showToast(err.message || 'Save failed', true);
+    })
+    .finally(() => showLoader(false));
 });
 </script>
 

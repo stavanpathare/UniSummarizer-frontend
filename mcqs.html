@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quizzes • UniSummarizer</title>
+  <link rel="icon" type="image/png" href="assets/img/mcq.png" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/api.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body class="page-mcqs">
+
+  <div class="wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo-area">
+        <img src="assets/img/logo.png" alt="logo" class="sidebar-logo"/>
+        <h2>Uni<span>Summarizer</span></h2>
+      </div>
+
+      <nav class="nav-links">
+        <a href="upload.html">Upload Notes</a>
+        <a href="dashboard.html">Saved Summaries</a>
+        <a href="flashcards.html">Flashcards</a>
+        <a href="mcqs.html" class="active">Quizzes</a>
+        <a href="#" class="logout">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content container">
+
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <h1>Quizzes</h1>
+        <div class="user">
+          <img src="assets/img/user.png" alt="user" />
+        </div>
+      </div>
+
+      <section class="section">
+        <div id="mcq-root"></div>
+      </section>
+ <footer class="footer container">
+        <p>© 2025 Created by Stavan Labs. All rights reserved.</p>
+      </footer>
+    </main>
+  </div>
+
+  <footer class="footer container">
+    <p>© 2025 Created by Stavan Labs. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      if (!requireAuth()) return;
+      const root = document.getElementById('mcq-root');
+      try{
+        showLoader(true);
+        const qs = await window.api.getMcqs();
+        root.innerHTML = '';
+        (qs || []).forEach(q => {
+          const block = document.createElement('div');
+          block.className = 'mcq';
+          const title = document.createElement('h4');
+          title.textContent = q.question;
+          block.appendChild(title);
+
+          let locked = false;
+          const optionButtons = [];
+
+          let correctIndex = q.answerIndex;
+          if (correctIndex === undefined && q.answer !== undefined) {
+            correctIndex = q.options.indexOf(q.answer);
+          }
+
+          q.options.forEach((opt, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'mcq-option';
+            btn.textContent = opt;
+            btn.tabIndex = 0;
+            btn.addEventListener('click', () => {
+              if (locked) return; locked = true;
+              if (correctIndex !== -1 && correctIndex !== undefined) {
+                optionButtons[correctIndex].style.background = '#86efac';
+              }
+              if (idx !== correctIndex) btn.style.background = '#fca5a5';
+            });
+            btn.addEventListener('keydown', (e)=>{ if ((e.key==='Enter'||e.key===' ') && !locked){ e.preventDefault(); btn.click(); } });
+            optionButtons.push(btn);
+            block.appendChild(btn);
+          });
+
+          root.appendChild(block);
+        });
+      } catch(e) {
+        showToast(e.message || 'Failed to load quizzes', true);
+      } finally { showLoader(false); }
+    });
+  </script>
+
+</body>
+</html>

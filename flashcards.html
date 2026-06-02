@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flashcards • UniSummarizer</title>
+  <link rel="icon" type="image/png" href="assets/img/flash-card.png" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/api.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body class="page-flashcards">
+
+  <div class="wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="logo-area">
+        <img src="assets/img/logo.png" alt="logo" class="sidebar-logo"/>
+        <h2>Uni<span>Summarizer</span></h2>
+      </div>
+
+      <nav class="nav-links">
+        <a href="upload.html">Upload Notes</a>
+        <a href="dashboard.html">Saved Summaries</a>
+        <a href="flashcards.html" class="active">Flashcards</a>
+        <a href="mcqs.html">Quizzes</a>
+        <a href="#" class="logout">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content container">
+
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <h1>Flashcards</h1>
+        <div class="user">
+          <img src="assets/img/user.png" alt="user" />
+        </div>
+      </div>
+
+      <section class="section">
+        <div id="flashcards-root" class="flashcards" aria-live="polite"></div>
+      </section>
+
+      <footer class="footer container">
+        <p>© 2025 Created by Stavan Labs. All rights reserved.</p>
+      </footer>
+    </main>
+  </div>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async ()=>{
+      if (!requireAuth()) return;
+      const root = document.getElementById('flashcards-root');
+      try{
+        showLoader(true);
+        const cards = await window.api.getFlashcards();
+        root.innerHTML = '';
+        (cards || []).forEach(f => {
+          const card = document.createElement('div');
+          card.className = 'flashcard';
+          card.tabIndex = 0;
+          card.innerHTML = `
+            <div class="flashcard-inner">
+              <div class="flashcard-front">${f.question}</div>
+              <div class="flashcard-back">${f.answer}</div>
+            </div>
+          `;
+          card.addEventListener('click', ()=> card.classList.toggle('is-flipped'));
+          card.addEventListener('keydown', (e)=>{
+            if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.classList.toggle('is-flipped'); }
+          });
+          root.appendChild(card);
+        });
+      } catch(e) {
+        showToast(e.message || 'Failed to load flashcards', true);
+      } finally { showLoader(false); }
+    });
+  </script>
+
+</body>
+</html>

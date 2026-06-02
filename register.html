@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register • UniSummarizer</title>
+  <link rel="icon" type="image/png" href="assets/img/register.png" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/api.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body class="page-register">
+
+  <div class="auth-topbar">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <img src="assets/img/logo.png" alt="logo" />
+        <span>UniSummarizer</span>
+      </a>
+    </div>
+  </div>
+
+  <main class="container center-wrapper">
+    <section class="card" style="max-width:480px;width:100%;">
+      <h2>Create an account</h2>
+
+      <div style="margin-top:12px;">
+        <label>Name</label>
+        <input id="name" type="text" class="form-input" placeholder="Your name" />
+      </div>
+
+      <div style="margin-top:12px;">
+        <label>Email</label>
+        <input id="email" type="email" class="form-input" placeholder="you@example.com" />
+      </div>
+
+      <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <input id="password" type="password" class="form-input" placeholder="Password" />
+        <input id="confirm" type="password" class="form-input" placeholder="Confirm" />
+      </div>
+
+      <div style="margin-top:16px;display:flex;gap:8px;align-items:center;justify-content:space-between;">
+        <button id="register-btn" class="btn">Register</button>
+        <a href="login.html" class="muted">Already have an account?</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('register-btn').addEventListener('click', async ()=>{
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const confirm = document.getElementById('confirm').value.trim();
+      if(!name || !email || !password) return showToast('Please fill all fields', true);
+      if(password.length < 6) return showToast('Password must be at least 6 characters', true);
+      if(password !== confirm) return showToast('Passwords do not match', true);
+      try{
+        showLoader(true);
+        await window.api.registerUser({ name, email, password });
+        showToast('Registration successful');
+        window.location.href = 'login.html';
+      } catch (e) {
+        showToast(e.message || 'Registration failed', true);
+      } finally { showLoader(false); }
+    });
+  </script>
+
+</body>
+</html>
