@@ -10,7 +10,9 @@ UniSummarizer is an AI-powered web application that helps students quickly under
 - 🧠 AI-generated accurate and concise summaries  
 - ⚡ Faster revision and exam preparation  
 - 🎯 Student-friendly and simple UI  
-- 🌐 Web-based – accessible from anywhere  
+- 🌐 Web-based – accessible from anywhere
+- Login & Register Account
+- Dashboard   
 
 ---
 
@@ -25,6 +27,8 @@ UniSummarizer is an AI-powered web application that helps students quickly under
 - Node.js  
 - Express.js  
 - AI / NLP API Integration  
+- JWT Authentication 
+- MongoDB Atlas
 
 ---
 
