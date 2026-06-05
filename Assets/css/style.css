@@ -348,3 +348,8 @@ body { font-family: "Poppins", sans-serif; background: #f7f7f9; color: #222; lin
   .sidebar { position:fixed; left:-260px; top:0; bottom:0; transition: left .25s; }
   .sidebar.active { left:0; }
 }
+
+.stavan-labs{
+  color: #222;
+  text-decoration: none;
+}
